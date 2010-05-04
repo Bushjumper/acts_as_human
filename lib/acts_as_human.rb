@@ -22,21 +22,24 @@ module ActsAs
         send :include, InstanceMethods
 
         class_eval do
-          validates_presence_of       :first_name, :message => 'first name is required'
+          validates_presence_of       :first_name, :message => 'Please enter a first name'
           validates_length_of         :first_name, :maximum => 40,
-                                      :message => 'first name is too long (max 40 characters)'
+                                      :message => 'That first name is too long (maximum 40 characters, please)',
+                                      :if => :first_name_not_blank?
           validates_as_person_name    :first_name
           
           validates_length_of         :middle_names, :maximum => 40,
                                       :allow_blank => true,
-                                      :message => 'middle names are too long (max 40 characters)'
+                                      :message => 'That middle name is too long (maximum 40 characters, please)',
+                                      :if => :middle_names_not_blank?
           validates_as_person_name    :middle_names, :allow_nil => true
           
           validates_presence_of       :last_name, :if => Proc.new { @require_last_name },
-                                      :message => 'last name is required'
+                                      :message => 'Please enter a last name'
           validates_length_of         :last_name, :maximum => 40,
                                       :allow_blank => true,
-                                      :message => 'last name is too long (max 40 characters)'
+                                      :message => 'That last name is too long (maximum 40 characters, please)',
+                                      :if => :last_name_not_blank?
           validates_as_person_name    :last_name
         end
       end
@@ -64,6 +67,18 @@ module ActsAs
       
       private
       
+      def first_name_not_blank?
+        !first_name.blank?
+      end
+
+      def middle_names_not_blank?
+        !middle_names.blank?
+      end
+
+      def last_name_not_blank?
+        !last_name.blank?
+      end
+
       def assign_middle_names(names_array)
         if names_array.size > 2
           self.middle_names = get_middle_names(names_array)
